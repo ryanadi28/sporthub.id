@@ -10,7 +10,7 @@ class Gor extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nama', 'alamat', 'telepon', 'deskripsi', 'owner_user_id', 'status',
+        'nama', 'alamat', 'telepon', 'deskripsi', 'owner_user_id', 'status', 'gambar',
     ];
 
     public function owner()

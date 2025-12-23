@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
         // run location seeder
         $this->call([
             LocationSeeder::class,
+            FixBookingFieldIdSeeder::class,
+            PrintAllBookingPerFieldSeeder::class, // <--- Tambahkan ini
         ]);
 
         $userroles = [

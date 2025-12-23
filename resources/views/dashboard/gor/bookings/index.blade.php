@@ -74,9 +74,14 @@
 
                                 <!-- GOR / Lapangan -->
                                 <td class="py-3 px-4">
-                                    <div>
-                                        <p class="font-semibold text-slate-800">{{ $b->field->gor->nama ?? '-' }}</p>
-                                        <p class="text-xs text-teal-600 bg-teal-50 inline-block px-2 py-0.5 rounded mt-1">{{ $b->field->nama ?? '-' }}</p>
+                                    <div class="flex items-center space-x-3">
+                                        @if(isset($b->field->gor->gambar) && $b->field->gor->gambar)
+                                            <img src="{{ asset('storage/gors/' . $b->field->gor->gambar) }}" alt="Gambar GOR" class="h-12 w-12 rounded-lg object-cover border border-slate-200" />
+                                        @endif
+                                        <div>
+                                            <p class="font-semibold text-slate-800">{{ $b->field->gor->nama ?? '-' }}</p>
+                                            <p class="text-xs text-teal-600 bg-teal-50 inline-block px-2 py-0.5 rounded mt-1">{{ $b->field->nama ?? '-' }}</p>
+                                        </div>
                                     </div>
                                 </td>
 

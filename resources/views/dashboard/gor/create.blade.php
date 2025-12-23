@@ -6,7 +6,7 @@
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                <form method="POST" action="{{ route('gors.store') }}" class="space-y-4">
+                <form method="POST" action="{{ route('gors.store') }}" class="space-y-4" enctype="multipart/form-data">
                     @csrf
                     <div>
                         <label class="block text-sm font-medium">Nama</label>
@@ -23,6 +23,10 @@
                     <div>
                         <label class="block text-sm font-medium">Deskripsi</label>
                         <textarea name="deskripsi" class="mt-1 w-full border rounded p-2"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Gambar GOR</label>
+                        <input type="file" name="gambar" accept="image/*" class="mt-1 w-full border rounded p-2" />
                     </div>
                     @if(auth()->user()->isAdminPlatform())
                         <div>

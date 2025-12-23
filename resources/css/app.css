@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom navbar color: #184366 (lihat navigation-menu.blade.php) */
+
 [x-cloak] {
     display: none;
 }

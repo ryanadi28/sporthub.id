@@ -266,258 +266,310 @@
         </div>
     </div>
 
-    @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const fieldId = {{ $field->id }};
-            const pricePerHour = {{ $field->harga_per_jam }};
-            const schedules = @json($field->schedules);
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fieldId = {{ $field->id }};
+        const pricePerHour = {{ $field->harga_per_jam }};
+        const schedules = @json($field->schedules);
 
-            let currentDate = new Date();
-            let selectedDate = null;
-            let selectedStartSlot = null;
-            let selectedEndSlot = null;
-            let bookedSlots = {};
+        let currentDate = new Date();
+        let selectedDate = null;
+        let selectedStartSlot = null;
+        let selectedEndSlot = null;
+        let bookedSlots = {};
 
-            // Calendar
-            function renderCalendar() {
-                const year = currentDate.getFullYear();
-                const month = currentDate.getMonth();
-                const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        // Calendar
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const monthNames = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
 
-                document.getElementById('monthYear').textContent = `${monthNames[month]} ${year}`;
+            document.getElementById('monthYear').textContent = `${monthNames[month]} ${year}`;
 
-                const firstDay = new Date(year, month, 1).getDay();
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let html = '';
+
+            // Empty cells sebelum tanggal 1
+            for (let i = 0; i < firstDay; i++) {
+                html += '<div class="p-2"></div>';
+            }
+
+            // Isi tanggal
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isPast = date < today;
+                const isSelected = selectedDate === dateStr;
+                const isToday = date.getTime() === today.getTime();
+
+                let classes = 'p-3 text-center rounded-xl cursor-pointer text-sm font-semibold transition-all duration-300 ';
+
+                if (isPast) {
+                    classes += 'text-gray-300 cursor-not-allowed bg-gray-50';
+                } else if (isSelected) {
+                    classes += 'bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-lg transform scale-110';
+                } else if (isToday) {
+                    classes += 'bg-teal-100 text-teal-700 hover:bg-teal-200 border-2 border-teal-400 transform hover:scale-105';
+                } else {
+                    classes += 'bg-white hover:bg-teal-50 text-gray-700 hover:text-teal-700 shadow-sm hover:shadow-md transform hover:scale-105';
+                }
+
+                html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
+            }
+
+            document.getElementById('calendarDays').innerHTML = html;
+
+            // Event click tanggal
+            document.querySelectorAll('#calendarDays > div[data-date]').forEach(el => {
+                const dateStr = el.getAttribute('data-date');
+                const date = new Date(dateStr);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
 
-                let html = '';
-
-                // Empty cells for days before first day of month
-                for (let i = 0; i < firstDay; i++) {
-                    html += '<div class="p-2"></div>';
+                if (date >= today) {
+                    el.addEventListener('click', () => selectDateHandler(dateStr));
                 }
-
-                // Days of month
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const date = new Date(year, month, day);
-                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                    const isPast = date < today;
-                    const isSelected = selectedDate === dateStr;
-                    const isToday = date.getTime() === today.getTime();
-
-                    let classes = 'p-3 text-center rounded-xl cursor-pointer text-sm font-semibold transition-all duration-300 ';
-
-                    if (isPast) {
-                        classes += 'text-gray-300 cursor-not-allowed bg-gray-50';
-                    } else if (isSelected) {
-                        classes += 'bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-lg transform scale-110';
-                    } else if (isToday) {
-                        classes += 'bg-teal-100 text-teal-700 hover:bg-teal-200 border-2 border-teal-400 transform hover:scale-105';
-                    } else {
-                        classes += 'bg-white hover:bg-teal-50 text-gray-700 hover:text-teal-700 shadow-sm hover:shadow-md transform hover:scale-105';
-                    }
-
-                    html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
-                }
-
-                document.getElementById('calendarDays').innerHTML = html;
-
-                // Add click events to calendar days
-                document.querySelectorAll('#calendarDays > div[data-date]').forEach(el => {
-                    const dateStr = el.getAttribute('data-date');
-                    const date = new Date(dateStr);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-
-                    if (date >= today) {
-                        el.addEventListener('click', () => selectDateHandler(dateStr));
-                    }
-                });
-            }
-
-            document.getElementById('prevMonth').addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() - 1);
-                renderCalendar();
             });
+        }
 
-            document.getElementById('nextMonth').addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() + 1);
-                renderCalendar();
-            });
-
-            function selectDateHandler(dateStr) {
-                selectedDate = dateStr;
-                document.getElementById('tanggalInput').value = dateStr;
-                selectedStartSlot = null;
-                selectedEndSlot = null;
-                renderCalendar();
-                loadTimeSlots(dateStr);
-            }
-
-            async function loadTimeSlots(dateStr) {
-                const container = document.getElementById('timeSlotsContainer');
-                container.innerHTML = '<div class="flex flex-col items-center justify-center h-full py-12"><div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4 animate-pulse"><svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><p class="text-gray-400 text-center font-medium">Memuat jadwal...</p></div>';
-
-                try {
-                    const response = await fetch(`/api/fields/${fieldId}/availability?tanggal=${dateStr}`);
-                    const data = await response.json();
-                    bookedSlots = {};
-
-                    // Mark booked slots
-                    if (data.bookings && data.bookings.length > 0) {
-                        data.bookings.forEach(b => {
-                            const startHour = parseInt(b.jam_mulai.split(':')[0]);
-                            const endHour = parseInt(b.jam_selesai.split(':')[0]);
-
-                            for (let h = startHour; h < endHour; h++) {
-                                bookedSlots[`${String(h).padStart(2, '0')}:00`] = true;
-                            }
-                        });
-                    }
-
-                    renderTimeSlots(data.schedule);
-                } catch (e) {
-                    console.error(e);
-                    container.innerHTML = '<div class="flex flex-col items-center justify-center h-full py-12"><div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4"><svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><p class="text-red-500 text-center font-semibold">Gagal memuat jadwal</p></div>';
-                }
-            }
-
-            function renderTimeSlots(schedule) {
-                const container = document.getElementById('timeSlotsContainer');
-
-                if (!schedule || !schedule.is_available) {
-                    container.innerHTML = '<div class="flex flex-col items-center justify-center h-full py-12"><div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4"><svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></div><p class="text-red-500 text-center font-semibold">Lapangan tidak tersedia di hari ini</p></div>';
-                    return;
-                }
-
-                const startHour = parseInt(schedule.jam_buka.split(':')[0]);
-                const endHour = parseInt(schedule.jam_tutup.split(':')[0]);
-
-                // Check if selected date is today
-                const now = new Date();
-                const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-                const isToday = selectedDate === todayStr;
-                const currentHour = now.getHours();
-                const currentMinute = now.getMinutes();
-
-                let html = '<div class="grid grid-cols-3 sm:grid-cols-4 gap-3">';
-
-                for (let h = startHour; h < endHour; h++) {
-                    const timeStr = `${String(h).padStart(2, '0')}:00`;
-                    const isBooked = bookedSlots[timeStr];
-                    const isSelected = isSlotInRange(timeStr);
-
-                    // Check if time has passed (for today only)
-                    const isPast = isToday && h <= currentHour;
-
-                    let classes = 'p-3 text-center rounded-xl text-sm font-bold time-slot transition-all duration-300 transform ';
-
-                    if (isBooked || isPast) {
-                        classes += 'bg-gradient-to-br from-red-100 to-rose-100 text-red-400 cursor-not-allowed line-through border-2 border-red-200';
-                    } else if (isSelected) {
-                        classes += 'bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-lg scale-105 border-2 border-teal-600';
-                    } else {
-                        classes += 'bg-white hover:bg-gradient-to-br hover:from-teal-100 hover:to-emerald-100 cursor-pointer shadow-md hover:shadow-lg border-2 border-gray-200 hover:border-teal-400 text-gray-700 hover:text-teal-700 hover:scale-105';
-                    }
-
-                    const unavailable = isBooked || isPast ? '1' : '0';
-                    html += `<div class="${classes}" data-time="${timeStr}" data-booked="${unavailable}">${timeStr}</div>`;
-                }
-
-                html += '</div>';
-                html += '<div class="mt-5 space-y-2"><div class="flex items-center space-x-2 text-xs text-gray-600"><svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Klik slot pertama untuk jam mulai, lalu klik slot kedua untuk jam selesai</span></div><div class="flex items-center space-x-2 text-xs text-red-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg><span>Merah = sudah dibooking / jam sudah lewat</span></div></div>';
-
-                container.innerHTML = html;
-
-                // Add click events to time slots
-                container.querySelectorAll('.time-slot').forEach(el => {
-                    if (el.getAttribute('data-booked') === '0') {
-                        el.addEventListener('click', () => selectTimeSlotHandler(el.getAttribute('data-time')));
-                    }
-                });
-            }
-
-            function isSlotInRange(timeStr) {
-                if (!selectedStartSlot || !selectedEndSlot) {
-                    return timeStr === selectedStartSlot;
-                }
-                return timeStr >= selectedStartSlot && timeStr < selectedEndSlot;
-            }
-
-            function selectTimeSlotHandler(timeStr) {
-                if (!selectedStartSlot) {
-                    selectedStartSlot = timeStr;
-                    selectedEndSlot = null;
-                } else if (!selectedEndSlot) {
-                    if (timeStr <= selectedStartSlot) {
-                        selectedStartSlot = timeStr;
-                    } else {
-                        // Check if any slot in range is booked (tidak termasuk jam selesai)
-                        let hasBookedInRange = false;
-                        const startH = parseInt(selectedStartSlot.split(':')[0]);
-                        const endH = parseInt(timeStr.split(':')[0]);
-
-                        for (let h = startH; h < endH; h++) {
-                            const t = `${String(h).padStart(2, '0')}:00`;
-                            if (bookedSlots[t]) {
-                                hasBookedInRange = true;
-                                break;
-                            }
-                        }
-
-                        if (hasBookedInRange) {
-                            alert('Tidak bisa booking melewati slot yang sudah dibooking!');
-                            return;
-                        }
-
-                        // Use clicked slot directly as end time
-                        selectedEndSlot = timeStr;
-                    }
-                } else {
-                    selectedStartSlot = timeStr;
-                    selectedEndSlot = null;
-                }
-
-                updateSelection();
-                renderTimeSlots({ jam_buka: schedules[0]?.jam_buka || '08:00', jam_tutup: schedules[0]?.jam_tutup || '22:00', is_available: true });
-            }
-
-            function updateSelection() {
-                document.getElementById('jamMulaiInput').value = selectedStartSlot || '';
-                document.getElementById('jamSelesaiInput').value = selectedEndSlot || '';
-
-                const infoDiv = document.getElementById('selectedTimeInfo');
-                const submitBtn = document.getElementById('submitBtn');
-
-                if (selectedStartSlot && selectedEndSlot) {
-                    const startH = parseInt(selectedStartSlot.split(':')[0]);
-                    const startM = parseInt(selectedStartSlot.split(':')[1]);
-                    const endH = parseInt(selectedEndSlot.split(':')[0]);
-                    const endM = parseInt(selectedEndSlot.split(':')[1]);
-
-                    const durationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
-                    const durationHours = durationMinutes / 60;
-                    const total = durationHours * pricePerHour;
-
-                    document.getElementById('selectedTimeText').textContent = `${selectedStartSlot} - ${selectedEndSlot}`;
-                    document.getElementById('durationText').textContent = `${durationMinutes} menit (${durationHours} jam)`;
-                    document.getElementById('totalPrice').textContent = new Intl.NumberFormat('id-ID').format(total);
-
-                    infoDiv.classList.remove('hidden');
-                    submitBtn.disabled = false;
-                } else {
-                    infoDiv.classList.add('hidden');
-                    submitBtn.disabled = true;
-                }
-            }
-
-            // Init
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
             renderCalendar();
         });
-    </script>
-    @endpush
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        function selectDateHandler(dateStr) {
+            selectedDate = dateStr;
+            document.getElementById('tanggalInput').value = dateStr;
+            selectedStartSlot = null;
+            selectedEndSlot = null;
+            renderCalendar();
+            loadTimeSlots(dateStr);
+        }
+
+        async function loadTimeSlots(dateStr) {
+            const container = document.getElementById('timeSlotsContainer');
+            container.innerHTML =
+                '<div class="flex flex-col items-center justify-center h-full py-12">' +
+                    '<div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4 animate-pulse">' +
+                        '<svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>' +
+                        '</svg>' +
+                    '</div>' +
+                    '<p class="text-gray-400 text-center font-medium">Memuat jadwal...</p>' +
+                '</div>';
+
+            try {
+                const response = await fetch(`/api/fields/${fieldId}/availability?tanggal=${dateStr}`);
+                const data = await response.json();
+                bookedSlots = {};
+
+                // Tandai slot yang sudah dibooking
+                if (data.bookings && data.bookings.length > 0) {
+                    data.bookings.forEach(b => {
+                        const startHour = parseInt(b.jam_mulai.split(':')[0]);
+                        const endHour = parseInt(b.jam_selesai.split(':')[0]);
+
+                        for (let h = startHour; h < endHour; h++) {
+                            bookedSlots[`${String(h).padStart(2, '0')}:00`] = true;
+                        }
+                    });
+                }
+
+                renderTimeSlots(data.schedule);
+            } catch (e) {
+                console.error(e);
+                container.innerHTML =
+                    '<div class="flex flex-col items-center justify-center h-full py-12">' +
+                        '<div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">' +
+                            '<svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>' +
+                            '</svg>' +
+                        '</div>' +
+                        '<p class="text-red-500 text-center font-semibold">Gagal memuat jadwal</p>' +
+                    '</div>';
+            }
+        }
+
+        function renderTimeSlots(schedule) {
+            const container = document.getElementById('timeSlotsContainer');
+
+            if (!schedule || !schedule.is_available) {
+                container.innerHTML =
+                    '<div class="flex flex-col items-center justify-center h-full py-12">' +
+                        '<div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">' +
+                            '<svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' +
+                            '</svg>' +
+                        '</div>' +
+                        '<p class="text-red-500 text-center font-semibold">Lapangan tidak tersedia di hari ini</p>' +
+                    '</div>';
+                return;
+            }
+
+            const startHour = parseInt(schedule.jam_buka.split(':')[0]);
+            const endHour = parseInt(schedule.jam_tutup.split(':')[0]);
+
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const isToday = selectedDate === todayStr;
+            const currentHour = now.getHours();
+
+            let html = '<div class="grid grid-cols-3 sm:grid-cols-4 gap-3">';
+
+            for (let h = startHour; h < endHour; h++) {
+                const timeStr = `${String(h).padStart(2, '0')}:00`;
+                const isBooked = bookedSlots[timeStr];
+                const isSelected = isSlotInRange(timeStr);
+
+                const isPast = isToday && h <= currentHour;
+
+                let classes = 'p-3 text-center rounded-xl text-sm font-bold time-slot transition-all duration-300 transform ';
+
+                if (isBooked || isPast) {
+                    classes += 'bg-gradient-to-br from-red-100 to-rose-100 text-red-400 cursor-not-allowed line-through border-2 border-red-200';
+                } else if (isSelected) {
+                    classes += 'bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-lg scale-105 border-2 border-teal-600';
+                } else {
+                    classes += 'bg-white hover:bg-gradient-to-br hover:from-teal-100 hover:to-emerald-100 cursor-pointer shadow-md hover:shadow-lg border-2 border-gray-200 hover:border-teal-400 text-gray-700 hover:text-teal-700 hover:scale-105';
+                }
+
+                const unavailable = isBooked || isPast ? '1' : '0';
+                html += `<div class="${classes}" data-time="${timeStr}" data-booked="${unavailable}">${timeStr}</div>`;
+            }
+
+            html += '</div>';
+            html += `
+                <div class="mt-5 space-y-2">
+                    <div class="flex items-center space-x-2 text-xs text-gray-600">
+                        <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Klik slot pertama untuk jam mulai, lalu klik slot kedua untuk jam selesai</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-xs text-red-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        <span>Merah = sudah dibooking / jam sudah lewat</span>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+
+            // Event click slot jam
+            container.querySelectorAll('.time-slot').forEach(el => {
+                if (el.getAttribute('data-booked') === '0') {
+                    el.addEventListener('click', () => selectTimeSlotHandler(el.getAttribute('data-time')));
+                }
+            });
+        }
+
+        function isSlotInRange(timeStr) {
+            if (!selectedStartSlot || !selectedEndSlot) {
+                return timeStr === selectedStartSlot;
+            }
+            // highlight slot dari jam mulai sampai sebelum jam selesai
+            return timeStr >= selectedStartSlot && timeStr < selectedEndSlot;
+        }
+
+        function selectTimeSlotHandler(timeStr) {
+            if (!selectedStartSlot) {
+                // klik pertama -> jam mulai
+                selectedStartSlot = timeStr;
+                selectedEndSlot = null;
+            } else if (!selectedEndSlot) {
+                // klik kedua -> jam selesai
+                if (timeStr <= selectedStartSlot) {
+                    // kalau user klik mundur, jadikan sebagai start baru
+                    selectedStartSlot = timeStr;
+                } else {
+                    // cek di range ada slot yang sudah dibooking atau tidak
+                    let hasBookedInRange = false;
+                    const startH = parseInt(selectedStartSlot.split(':')[0]);
+                    const endH = parseInt(timeStr.split(':')[0]);
+
+                    for (let h = startH; h < endH; h++) {
+                        const t = `${String(h).padStart(2, '0')}:00`;
+                        if (bookedSlots[t]) {
+                            hasBookedInRange = true;
+                            break;
+                        }
+                    }
+
+                    if (hasBookedInRange) {
+                        alert('Tidak bisa booking melewati slot yang sudah dibooking!');
+                        return;
+                    }
+
+                    // end time = slot kedua yang diklik (tanpa +1 jam)
+                    selectedEndSlot = timeStr;
+                }
+            } else {
+                // klik lagi setelah range terbentuk -> reset dan mulai dari slot baru
+                selectedStartSlot = timeStr;
+                selectedEndSlot = null;
+            }
+
+            updateSelection();
+            // render ulang tampilan slot dengan schedule asli
+            renderTimeSlots({
+                jam_buka: schedules[0]?.jam_buka || '08:00',
+                jam_tutup: schedules[0]?.jam_tutup || '22:00',
+                is_available: true
+            });
+        }
+
+        function updateSelection() {
+            document.getElementById('jamMulaiInput').value = selectedStartSlot || '';
+            document.getElementById('jamSelesaiInput').value = selectedEndSlot || '';
+
+            const infoDiv = document.getElementById('selectedTimeInfo');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (selectedStartSlot && selectedEndSlot) {
+                const startH = parseInt(selectedStartSlot.split(':')[0]);
+                const startM = parseInt(selectedStartSlot.split(':')[1]);
+                const endH = parseInt(selectedEndSlot.split(':')[0]);
+                const endM = parseInt(selectedEndSlot.split(':')[1]);
+
+                const durationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+                const durationHours = durationMinutes / 60;
+                const total = durationHours * pricePerHour;
+
+                document.getElementById('selectedTimeText').textContent =
+                    `${selectedStartSlot} - ${selectedEndSlot}`;
+                document.getElementById('durationText').textContent =
+                    `${durationMinutes} menit (${durationHours} jam)`;
+                document.getElementById('totalPrice').textContent =
+                    new Intl.NumberFormat('id-ID').format(total);
+
+                infoDiv.classList.remove('hidden');
+                submitBtn.disabled = false;
+            } else {
+                infoDiv.classList.add('hidden');
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Init
+        renderCalendar();
+    });
+</script>
+@endpush
 
     <!-- Custom Animations CSS -->
     <style>

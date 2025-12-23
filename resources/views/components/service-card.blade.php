@@ -4,6 +4,9 @@
 ])
 
 <div {{ $attributes->class(['mx-auto w-80 min-w-[300px] mt-5 pb-20 transform overflow-hidden rounded-lg bg-white shadow-md duration-300 hover:scale-105 hover:shadow-lg']) }}>
+    @if(isset($service->gor) && $service->gor->gambar)
+        <img class="h-32 w-full object-cover object-center rounded-t-lg" src="{{ asset('storage/gors/' . $service->gor->gambar) }}" alt="Gambar GOR" />
+    @endif
     <img class="h-48 w-full object-cover object-center" src="{{ asset('storage/'. $service->image)}}"
          alt="Product Image"/>
     <div class="p-4">

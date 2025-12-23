@@ -6,7 +6,7 @@
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                <form method="POST" action="{{ route('gors.update', $gor) }}" class="space-y-4">
+                <form method="POST" action="{{ route('gors.update', $gor) }}" class="space-y-4" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div>
@@ -24,6 +24,13 @@
                     <div>
                         <label class="block text-sm font-medium">Deskripsi</label>
                         <textarea name="deskripsi" class="mt-1 w-full border rounded p-2">{{ old('deskripsi', $gor->deskripsi) }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Gambar GOR</label>
+                        <input type="file" name="gambar" accept="image/*" class="mt-1 w-full border rounded p-2" />
+                        @if($gor->gambar)
+                            <img src="{{ asset('storage/gors/' . $gor->gambar) }}" alt="Gambar GOR" class="mt-2 h-24 rounded" />
+                        @endif
                     </div>
                     <div>
                         <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded">Simpan</button>

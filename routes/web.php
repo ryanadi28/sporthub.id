@@ -90,6 +90,8 @@ Route::middleware([
                 return view('dashboard.gor.index', compact('gors'));
             })->name('dashboard.gor');
 
+            Route::get('gor/dashboard', [\App\Http\Controllers\GorController::class, 'dashboard'])->name('dashboard.gor.dashboard');
+
             // Kelola Booking (Admin GOR)
             Route::get('gor/bookings', [\App\Http\Controllers\BookingApprovalController::class, 'index'])->name('gor.bookings.index');
             Route::put('gor/bookings/{booking}/approve', [\App\Http\Controllers\BookingApprovalController::class, 'approve'])->name('gor.bookings.approve');
@@ -102,6 +104,8 @@ Route::middleware([
 
             // Customer booking GOR/Lapangan
             Route::get('booking', [\App\Http\Controllers\CustomerBookingController::class, 'index'])->name('customer.booking.index');
+                // Booking per GOR (pilih lapangan di halaman booking)
+                Route::get('booking/gor/{gor}', [\App\Http\Controllers\CustomerBookingController::class, 'bookingGor'])->name('customer.booking.gor');
             Route::get('booking/field/{field}', [\App\Http\Controllers\CustomerBookingController::class, 'showField'])->name('customer.booking.field');
             Route::get('booking/field/{field}/create', [\App\Http\Controllers\CustomerBookingController::class, 'create'])->name('customer.booking.create');
             Route::post('booking/field/{field}', [\App\Http\Controllers\CustomerBookingController::class, 'store'])->name('customer.booking.store');

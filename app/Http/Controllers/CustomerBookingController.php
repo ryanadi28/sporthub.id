@@ -10,6 +10,15 @@ use Illuminate\Support\Facades\Auth;
 
 class CustomerBookingController extends Controller
 {
+    /**
+     * Booking per GOR: tampilkan form booking dengan dropdown lapangan dan jadwal dinamis
+     */
+    public function bookingGor(Gor $gor)
+    {
+        // Ambil semua lapangan aktif milik GOR
+        $fields = $gor->fields()->where('is_hidden', false)->get();
+        return view('booking.gor', compact('gor', 'fields'));
+    }
     public function index()
     {
         $gors = Gor::where('status', true)->with('fields')->get();
