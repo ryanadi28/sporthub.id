@@ -24,9 +24,9 @@
                     <div class="mb-8">
                         <div class="inline-flex items-center justify-center w-32 h-32 shadow-2xl transform hover:scale-105 transition-transform duration-300">
                             {{-- Fallback jika image tidak ada --}}
-                            @if(file_exists(public_path('images/sporthub.png')))
+                            @if(file_exists(public_path('images/logo-sporthub.png')))
                                 <img
-                                    src="{{ asset('images/sporthub.png') }}"
+                                    src="{{ asset('images/logo-sporthub.png') }}"
                                     alt="SportHub Logo"
                                     class="w-full h-full object-cover rounded-3xl"
                                     onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiByeD0iMzAiIGZpbGw9IiMwRENBQUEiLz4KPGNpcmNsZSBjeD0iMTUwIiBjeT0iMTUwIiByPSI4MCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxMCIvPgo8Y2lyY2xlIGN4PSIxNTAiIGN5PSIxNTAiIHI9IjQwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjgiLz4KPHBhdGggZD0iTTExMiAxNTAgTDEzMCAxNzAgTDE5MCAxMjAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMTIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTUwIDIwMCBMMTUwIDI0MCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPg=='"

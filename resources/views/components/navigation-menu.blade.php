@@ -24,7 +24,7 @@
 
                 <a href="{{ $appMarkRoute }}" class="flex items-center space-x-3 group">
                     <div class="shrink-0 bg-white/10 backdrop-blur-sm p-2 rounded-xl transition-all duration-300 group-hover:bg-white/20 group-hover:shadow-lg">
-                        <img src="{{ asset('images/logo-sporthub.png') }}" alt="Logo Sporthub"
+                        <img src="{{ asset('images/sporthub.png') }}" alt="Logo Sporthub"
                              class="h-9 w-auto transition-transform duration-300 group-hover:scale-110" />
                     </div>
 

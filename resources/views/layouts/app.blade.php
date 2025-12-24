@@ -9,6 +9,7 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/logo-sporthub.png" href="{{ asset('images/logo-sporthub.png') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
 
         <!-- Fonts -->
         {{-- <link rel="preconnect" href="https://fonts.bunny.net">
